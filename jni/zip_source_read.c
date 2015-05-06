@@ -1,6 +1,6 @@
 /*
-  zip_free.c -- free struct zip
-  Copyright (C) 1999-2007 Dieter Baron and Thomas Klausner
+  zip_source_read.c -- read data from zip_source
+  Copyright (C) 2009-2014 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -31,51 +31,20 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
-#include <stdlib.h>
 
 #include "zipint.h"
 
-
 
-/* _zip_free:
-   frees the space allocated to a zipfile struct, and closes the
-   corresponding file. */
-
-void
-_zip_free(struct zip *za)
+zip_int64_t
+zip_source_read(zip_source_t *src, void *data, zip_uint64_t len)
 {
-    int i;
-
-    if (za == NULL)
-	return;
-
-    if (za->zn)
-	free(za->zn);
-
-    if (za->zp)
-	fclose(za->zp);
-
-    _zip_cdir_free(za->cdir);
-
-    if (za->entry) {
-	for (i=0; i<za->nentry; i++) {
-	    _zip_entry_free(za->entry+i);
-	}
-	free(za->entry);
+    if (src->source_closed) {
+        return -1;
+    }
+    if (!ZIP_SOURCE_IS_OPEN_READING(src) || len > ZIP_INT64_MAX || (len > 0 && data == NULL)) {
+        zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+	return -1;
     }
 
-    for (i=0; i<za->nfile; i++) {
-	if (za->file[i]->error.zip_err == ZIP_ER_OK) {
-	    _zip_error_set(&za->file[i]->error, ZIP_ER_ZIPCLOSED, 0);
-	    za->file[i]->za = NULL;
-	}
-    }
-
-    free(za->file);
-    
-    free(za);
-
-    return;
+    return _zip_source_call(src, data, len, ZIP_SOURCE_READ);
 }
