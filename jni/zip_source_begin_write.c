@@ -1,6 +1,6 @@
 /*
-  zip_entry_new.c -- create and init struct zip_entry
-  Copyright (C) 1999-2007 Dieter Baron and Thomas Klausner
+  zip_source_begin_write.c -- start a new file for writing
+  Copyright (C) 2014 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -31,48 +31,23 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
-#include <stdlib.h>
 
 #include "zipint.h"
 
-
 
-struct zip_entry *
-_zip_entry_new(struct zip *za)
+ZIP_EXTERN int
+zip_source_begin_write(zip_source_t *src)
 {
-    struct zip_entry *ze;
-    if (!za) {
-	ze = (struct zip_entry *)malloc(sizeof(struct zip_entry));
-	if (!ze) {
-	    _zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
-	    return NULL;
-	}
+    if (ZIP_SOURCE_IS_OPEN_WRITING(src)) {
+        zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+        return -1;
     }
-    else {
-	if (za->nentry >= za->nentry_alloc-1) {
-	    za->nentry_alloc += 16;
-	    za->entry = (struct zip_entry *)realloc(za->entry,
-						    sizeof(struct zip_entry)
-						    * za->nentry_alloc);
-	    if (!za->entry) {
-		_zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
-		return NULL;
-	    }
-	}
-	ze = za->entry+za->nentry;
+    
+    if (_zip_source_call(src, NULL, 0, ZIP_SOURCE_BEGIN_WRITE) < 0) {
+        return -1;
     }
 
-    ze->state = ZIP_ST_UNCHANGED;
-
-    ze->ch_filename = NULL;
-    ze->ch_comment = NULL;
-    ze->ch_comment_len = -1;
-    ze->source = NULL;
-
-    if (za)
-	za->nentry++;
-
-    return ze;
+    src->write_state = ZIP_SOURCE_WRITE_OPEN;
+    
+    return 0;
 }
