@@ -4,7 +4,7 @@
 /* #undef HAVE_DECL_TZNAME */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#define HAVE_DLFCN_H 0
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the `fseeko' function. */
 #define HAVE_FSEEKO 0
@@ -31,13 +31,13 @@
 #define HAVE_INT8_T 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#define HAVE_INTTYPES_H 0
+#define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `z' library (-lz). */
 #define HAVE_LIBZ 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-#define HAVE_MEMORY_H 0
+#define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `mkstemp' function. */
 #define HAVE_MKSTEMP 0
